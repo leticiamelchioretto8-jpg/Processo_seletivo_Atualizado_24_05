@@ -27,7 +27,6 @@ public class Robot extends TimedRobot {
 
         controle = new XboxController(0);
 
-        // Acessando encoders com casting para compatibilidade 2026
         encoderEsquerdo = (SparkRelativeEncoder) frontLeft.getEncoder();
         encoderDireito = (SparkRelativeEncoder) frontRight.getEncoder();
     }
@@ -41,7 +40,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousPeriodic() {
-        // Lógica de movimento simples para o autônomo sem PID
         if (contadorAutonomo < 100) {
             // Move para frente por tempo/iteração
             acionarMotores(0.3, 0.3);
@@ -61,7 +59,7 @@ public class Robot extends TimedRobot {
         double velocidade = -controle.getLeftY(); 
         double rotacao = controle.getRightX();
 
-        // Cálculo de movimentação arcade
+        // Cálculo de movimentação
         double esquerdo = velocidade + rotacao;
         double direito = -(velocidade - rotacao);
 
@@ -77,16 +75,13 @@ public class Robot extends TimedRobot {
         }
     }
 
-    /**
-     * Substitui a função de 'follower' (seguidor) manualmente.
-     * Envia o sinal para os motores dianteiros e traseiros simultaneamente.
-     */
+
     private void acionarMotores(double vEsquerda, double vDireita) {
         frontLeft.set(vEsquerda);
-        backLeft.set(vEsquerda); // Segue a esquerda manualmente
+        backLeft.set(vEsquerda); // Segue a esquerda 
         
         frontRight.set(vDireita);
-        backRight.set(vDireita); // Segue a direita manualmente
+        backRight.set(vDireita); // Segue a direita
     }
 
     private void stopAll() {
