@@ -14,6 +14,12 @@ public class Robot extends TimedRobot {
     private XboxController controle;
     private int contadorAutonomo;
 
+    private static final double Kp = 0.03;
+    private static final double Kd = 0.01;
+    private static final double VELOCIDADE_BASE = 0.3;
+
+// Variáveis de estado do PD
+private double erroAnterior = 0;
     @Override
     public void robotInit() {
         // Inicialização direta dos IDs
@@ -40,9 +46,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousPeriodic() {
+      
         if (contadorAutonomo < 100) {
-            // Move para frente por tempo/iteração
-            acionarMotores(0.3, 0.3);
+            andarRetoComPD(VELOCIDADE_BASE);
         } else if (contadorAutonomo < 200) {
             // Para e aciona o shutter
             acionarMotores(0, 0);
@@ -53,13 +59,31 @@ public class Robot extends TimedRobot {
         }
         contadorAutonomo++;
     }
-
+    private void andarRetoComPD(double velocidadeBase) {
+        // Erro = diferença entre os encoders (positivo = esquerdo andou mais)
+        double posEsquerda = encoderEsquerdo.getPosition();
+        double posDireita  = encoderDireito.getPosition();
+        double erro = posEsquerda - posDireita;
+ 
+        // Derivativa = variação do erro em relação ao ciclo anterior
+        double derivativa = erro - erroAnterior;
+        erroAnterior = erro;
+ 
+        // Correção PD
+        double correcao = (Kp * erro) + (Kd * derivativa);
+ 
+        // Aplica a correção: se o lado esquerdo avançou mais, reduz esquerda e aumenta direita
+        double vEsquerda =  velocidadeBase - correcao;
+        double vDireita  = -(velocidadeBase + correcao); // negativo por inversão do lado direito
+ 
+        acionarMotores(vEsquerda, vDireita);
+    }
     @Override
     public void teleopPeriodic() {
         double velocidade = -controle.getLeftY(); 
         double rotacao = controle.getRightX();
 
-        // Cálculo de movimentação
+        // Cálculo de movimentação arcade
         double esquerdo = velocidade + rotacao;
         double direito = -(velocidade - rotacao);
 
@@ -75,10 +99,9 @@ public class Robot extends TimedRobot {
         }
     }
 
-
     private void acionarMotores(double vEsquerda, double vDireita) {
         frontLeft.set(vEsquerda);
-        backLeft.set(vEsquerda); // Segue a esquerda 
+        backLeft.set(vEsquerda); // Segue 
         
         frontRight.set(vDireita);
         backRight.set(vDireita); // Segue a direita
