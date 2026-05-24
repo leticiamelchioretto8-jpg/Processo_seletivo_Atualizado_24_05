@@ -60,7 +60,7 @@ private double erroAnterior = 0;
         contadorAutonomo++;
     }
     private void andarRetoComPD(double velocidadeBase) {
-        // Erro = diferença entre os encoders (positivo = esquerdo andou mais)
+        // Erro = é positivo se o esquerdo andou mais
         double posEsquerda = encoderEsquerdo.getPosition();
         double posDireita  = encoderDireito.getPosition();
         double erro = posEsquerda - posDireita;
@@ -83,7 +83,7 @@ private double erroAnterior = 0;
         double velocidade = -controle.getLeftY(); 
         double rotacao = controle.getRightX();
 
-        // Cálculo de movimentação arcade
+        // Cálculo de movimentação
         double esquerdo = velocidade + rotacao;
         double direito = -(velocidade - rotacao);
 
